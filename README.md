@@ -1,4 +1,4 @@
-[![GoDoc](https://godoc.org/github.com/Selvatico/go-mocket?status.svg)](https://godoc.org/github.com/Selvatico/go-mocket)  [![Build Status](https://travis-ci.org/Selvatico/go-mocket.svg?branch=master)](https://travis-ci.org/Selvatico/go-mocket) [![Go Report Card](https://goreportcard.com/badge/github.com/syeo66/go-mocket)](https://goreportcard.com/report/github.com/syeo66/go-mocket)
+[![GoDoc](https://godoc.org/github.com/Selvatico/go-mocket?status.svg)](https://godoc.org/github.com/Selvatico/go-mocket)  [![Build Status](https://travis-ci.org/syeo66/go-mocket.svg?branch=master)](https://travis-ci.org/syeo66/go-mocket) [![Go Report Card](https://goreportcard.com/badge/github.com/syeo66/go-mocket)](https://goreportcard.com/report/github.com/syeo66/go-mocket)
 
 # Go-Mocket – Go GORM & SQL Mocking Library
 
