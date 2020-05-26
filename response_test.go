@@ -73,6 +73,7 @@ func TestResponses(t *testing.T) {
 	db, _ := sql.Open(DriverName, "connection_string") // Could be any connection string
 	DB = db
 	commonReply := []map[string]interface{}{{"name": "FirstLast", "age": "30"}}
+	commonReply2 := []map[string]interface{}{{"identity_id": "5828CE3A-B26A-44A6-99DE-26E355701DEB", "age": "30"}}
 
 	t.Run("Simple SELECT caught by query", func(t *testing.T) {
 		Catcher.Logging = true
@@ -112,6 +113,19 @@ func TestResponses(t *testing.T) {
 		Catcher.Reset().NewMock().WithQuery(`SELECT .* FROM *"?users"?`).RegexpMatch().WithReply(commonReply)
 		result = GetUsers(DB)
 		if len(result) != 1 {
+			t.Errorf("Returned sets is not equal to 1. Received %d", len(result))
+		}
+		Catcher.Reset().NewMock().WithQuery(`SELECT .* FROM *"?users"?`).RegexpMatch().WithReply(commonReply2)
+		rows, err := db.Query(`SELECT * FROM "users"  WHERE "users"."identity_id"=?`, "5828CE3A-B26A-44A6-99DE-26E355701DEB")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer rows.Close()
+		count := 0
+		for rows.Next() {
+			count++
+		}
+		if count != 1 {
 			t.Errorf("Returned sets is not equal to 1. Received %d", len(result))
 		}
 	})
