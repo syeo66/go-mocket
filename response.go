@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"regexp"
 	"strings"
 	"sync"
 )
@@ -101,6 +102,7 @@ type Exceptions struct {
 type FakeResponse struct {
 	Pattern      string                            // SQL query pattern to match with
 	Strict       bool                              // Strict SQL query pattern comparison or by strings.Contains()
+	Regexp       bool                              // Regexp SQL query pattern is a regexp
 	Args         []interface{}                     // List args to be matched with
 	Response     []map[string]interface{}          // Array of rows to be parsed as result
 	Once         bool                              // To trigger only once
@@ -129,18 +131,23 @@ func (fr *FakeResponse) isArgsMatch(args []driver.NamedValue) bool {
 // isQueryMatch returns true if searched query is matched FakeResponse Pattern
 func (fr *FakeResponse) isQueryMatch(query string) bool {
 	fr.mu.Lock()
-        defer fr.mu.Unlock()
-	
+	defer fr.mu.Unlock()
+
 	if fr.Pattern == "" {
 		return true
 	}
 
-	if fr.Strict == true && query == fr.Pattern {
+	if !fr.Strict && query == fr.Pattern {
 		return true
 	}
 
-	if fr.Strict == false && strings.Contains(query, fr.Pattern) {
+	if !fr.Strict && strings.Contains(query, fr.Pattern) {
 		return true
+	}
+
+	if fr.Regexp {
+		m, _ := regexp.MatchString(fr.Pattern, query)
+		return m
 	}
 
 	return false
@@ -169,6 +176,12 @@ func (fr *FakeResponse) WithQuery(query string) *FakeResponse {
 	fr.mu.Lock()
 	defer fr.mu.Unlock()
 	fr.Pattern = query
+	return fr
+}
+
+// WithQuery adds SQL query pattern to match for
+func (fr *FakeResponse) RegexpMatch() *FakeResponse {
+	fr.Regexp = true
 	return fr
 }
 

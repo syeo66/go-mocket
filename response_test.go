@@ -102,6 +102,20 @@ func TestResponses(t *testing.T) {
 		}
 	})
 
+	t.Run("Simple SELECT caught by query in regexp mode", func(t *testing.T) {
+		Catcher.Logging = false
+		Catcher.Reset().NewMock().WithQuery(`SELECT hello FROM users`).RegexpMatch().WithReply(commonReply)
+		result := GetUsers(DB)
+		if len(result) != 0 {
+			t.Errorf("Returned sets is not equal to 0. Received %d", len(result))
+		}
+		Catcher.Reset().NewMock().WithQuery(`SELECT .* FROM *"?users"?`).RegexpMatch().WithReply(commonReply)
+		result = GetUsers(DB)
+		if len(result) != 1 {
+			t.Errorf("Returned sets is not equal to 1. Received %d", len(result))
+		}
+	})
+
 	t.Run("Simple SELECT with direct object", func(t *testing.T) {
 		t.Run("Not a once", func(t *testing.T) {
 			Catcher.Reset()
@@ -179,8 +193,7 @@ func TestResponses(t *testing.T) {
 	})
 
 	t.Run("Last insert id", func(t *testing.T) {
-		var mockedID int64
-		mockedID = 64
+		var mockedID int64 = 64
 		Catcher.Reset().NewMock().WithQuery("INSERT INTO foo").WithID(mockedID)
 		returnedID := InsertRecord(DB)
 		if returnedID != mockedID {
